@@ -57,6 +57,9 @@
 
     button:hover { transform: scale(1.05); background: #db2777; }
 
+    .maybe { background: #8b5cf6; }
+    .maybe:hover { background: #7c3aed; }
+
     .secondary { background: #374151; }
     .secondary:hover { background: #4b5563; }
 
@@ -65,35 +68,39 @@
     .wa-btn { background: #22c55e; }
     .wa-btn:hover { background: #16a34a; }
 
-    /* floating hearts */
-    .heart {
+    .typing {
+      border-right: 2px solid #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 2.2s steps(12, end) forwards, blink 0.8s infinite;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 110px; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    .firework {
       position: fixed;
-      bottom: -20px;
-      width: 14px;
-      height: 14px;
-      background: #ff6fa5;
-      transform: rotate(45deg);
-      animation: floatUp 6s linear infinite;
-      opacity: 0.8;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffd166;
+      pointer-events: none;
+      animation: explode 0.9s ease-out forwards;
       z-index: 1;
     }
 
-    .heart::before,
-    .heart::after {
-      content: '';
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      background: #ff6fa5;
-      border-radius: 50%;
-    }
-
-    .heart::before { top: -7px; left: 0; }
-    .heart::after { left: -7px; top: 0; }
-
-    @keyframes floatUp {
-      from { transform: translateY(0) rotate(45deg); opacity: 0.9; }
-      to { transform: translateY(-110vh) rotate(45deg); opacity: 0; }
+    @keyframes explode {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(1.8); opacity: 0; }
     }
   </style>
 </head>
@@ -102,21 +109,20 @@
   <div class="card" id="app"></div>
 
   <script>
-    /** 🔧 PUT YOUR WHATSAPP NUMBER HERE (international format, no +) */
-    const MY_NUMBER = "6281234567890";
+    const MY_NUMBER = "6281316310496";
 
     const steps = [
-      { type: "question", text: "Hey… can I ask you something small?", gif: "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" },
-      { type: "question", text: "Do you smile when you see my name appear?", gif: "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" },
-      { type: "question", text: "Do you enjoy our little conversations?", gif: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" },
-      { type: "question", text: "Do you feel a bit happier when we're talking?", gif: "https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif" },
-      { type: "question", text: "Would you like to spend real time together someday?", gif: "https://media.giphy.com/media/13borq7Zo2kulO/giphy.gif" },
-      { type: "question", text: "If I asked you out gently… would that be okay?", gif: "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif" },
+      { type: "question", text: "can i ask u something small...?", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExazg1OG5qNHBva2VjNmJ4NzY4a3J4ZXRjemx4YWhrbnY1d3h4ODZyYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/aE7wJrIV0qeLEKKrjn/giphy.gif" },
+      { type: "question", text: "do you feel comfortable talking with me?", gif: "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" },
+      { type: "question", text: "do you like the time we spend talking?", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmltdzJqa2x5dnd3aWxtYnBrZ215aTQ4Zm1mM2tsaDN3NXVtZnloNCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/n5iPVLeA1fvb0IYU5W/giphy.gif" },
+      { type: "question", text: "do our conversations make your day a little better?", gif: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YzQ4Yml5Y3N4NWlzcThkdzUyenFtbHZpMHEwaDNtZDBtMWloa2liNSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/1ViLp0GBYhTcA/giphy.gif" },
+      { type: "question", text: "would you like to spend some time together outside of chat?", gif: "https://media.giphy.com/media/13borq7Zo2kulO/giphy.gif" },
+      { type: "question", text: "if i asked you to go out sometime, would that be okay?", gif: "https://media.giphy.com/media/paf7IOKOacbzPinHQC/giphy.gif" },
 
       {
         type: "choice",
         key: "place",
-        text: "If we go out… where feels nicest to you?",
+        text: "if we go out… where feels nicest to you?",
         options: [
           { label: "Cozy café ☕", value: "cafe" },
           { label: "Evening city walk 🌆", value: "city" },
@@ -128,28 +134,28 @@
       {
         type: "choice",
         key: "vibe",
-        text: "What kind of feeling would you like that moment to have?",
+        text: "what kind of feeling would you like that moment to have?",
         options: [
-          { label: "Soft and calm 🌙", value: "calm" },
-          { label: "Playful and fun ✨", value: "fun" },
-          { label: "Deep and meaningful 💬", value: "deep" },
-          { label: "A little romantic ❤️", value: "romantic" }
+          { label: "soft and calm 🌙", value: "calm" },
+          { label: "playful and fun ✨", value: "fun" },
+          { label: "deep and meaningful 💬", value: "deep" },
+          { label: "a little personal and more deep ✌️", value: "romantic" }
         ]
       },
 
       {
         type: "choice",
         key: "activity",
-        text: "And… what should we do there?",
+        text: "and… what should we do there?",
         options: [
-          { label: "Just talk and laugh 😊", value: "talk" },
-          { label: "Walk around together 🚶", value: "walk" },
-          { label: "Eat something nice 🍰", value: "eat" },
-          { label: "Anything, as long as it's with you 💗", value: "together" }
+          { label: "just talk and laugh 😊", value: "talk" },
+          { label: "walk around together 🚶", value: "walk" },
+          { label: "eat something nice 🍰", value: "eat" },
+          { label: "go home instantly bcs of tiredness 😹", value: "together" }
         ]
       },
 
-      { type: "final", text: "So… would you like to go out with me?", gif: "https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif" }
+      { type: "final", text: "So… would you like to go out with me?", gif: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Zmx3eG1rNDAzcW82MXh0ODR6Mjk3dGlpaWZ6Z2Z5NnVodnY4Z2ZwdCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/QZpDATBs8QzcLZo9uI/giphy.gif" }
     ];
 
     let step = 0;
@@ -158,26 +164,45 @@
 
     const app = document.getElementById("app");
 
+    function renderIntro() {
+      app.innerHTML = `
+        <div class="typing">hai bina....</div>
+        <button onclick="startQuiz()">Next</button>
+      `;
+    }
+
+    function startQuiz() {
+      render();
+    }
+
     function render() {
       const s = steps[step];
       const gifHTML = s.gif ? `<img class=\"gif\" src=\"${s.gif}\" />` : "";
 
-      if (s.type === "question") {
-        app.innerHTML = `${gifHTML}<h2>${s.text}</h2><button onclick=\"answer(true)\">Yes</button><button class=\"secondary\" onclick=\"answer(false)\">No</button>`;
+      if (s.type === "question" || s.type === "final") {
+        app.innerHTML = `${gifHTML}<h2>${s.text}</h2>
+          <button onclick=\"answer(2)\">Yes</button>
+          <button class=\"maybe\" onclick=\"answer(1)\">Maybe</button>
+          <button class=\"secondary\" onclick=\"answer(0)\">No</button>`;
       }
 
       if (s.type === "choice") {
-        const opts = s.options.map(o => `<button onclick=\"choose('${s.key}','${o.value}')\">${o.label}</button>`).join("");
-        app.innerHTML = `<h2>${s.text}</h2><div class=\"options\">${opts}</div>`;
-      }
+        const buttons = s.options
+          .map(o => `<button onclick=\"choose('${s.key}','${o.value}')\">${o.label}</button>`)
+          .join("");
 
-      if (s.type === "final") {
-        app.innerHTML = `${gifHTML}<h2>${s.text}</h2><button onclick=\"answer(true)\">Yes ❤️</button><button class=\"secondary\" onclick=\"answer(false)\">No</button>`;
+        app.innerHTML = `<h2>${s.text}</h2><div class=\"options\">${buttons}</div>`;
       }
     }
 
-    function answer(yes) {
-      if (yes) score++;
+    function answer(value) {
+      score += value;
+      step++;
+      if (step < steps.length) render(); else showResult();
+    }
+
+    function answer(value) {
+      score += value;
       step++;
       if (step < steps.length) render(); else showResult();
     }
@@ -185,51 +210,52 @@
     function choose(key, value) {
       prefs[key] = value;
       step++;
-      if (step < steps.length) render(); else showResult();
+      render();
     }
 
     function showResult() {
-      const placeMap = { cafe: "a cozy café", city: "an evening city walk", park: "a quiet park", beach: "the beach at sunset" };
-      const vibeMap = { calm: "soft and calm", fun: "playful and fun", deep: "deep and meaningful", romantic: "a little romantic" };
-      const actMap = { talk: "just talking and laughing", walk: "walking side by side", eat: "sharing something sweet", together: "anything, as long as we're together" };
-
-      const place = placeMap[prefs.place] || "somewhere nice";
-      const vibe = vibeMap[prefs.vibe] || "a beautiful feeling";
-      const act = actMap[prefs.activity] || "spending time together";
-
       let message = "";
 
-      if (score >= 6)
-        message = `I’d like to take you to ${place}. It could feel ${vibe}, and we could spend the time ${act}.`;
-      else if (score >= 4)
-        message = `Maybe we could start simple. ${act} at ${place} sounds nice.`;
-      else if (score >= 2)
-        message = `Even a small moment together at ${place} would already mean a lot.`;
+      if (score >= 10)
+        message = "I’d really like to take you out sometime. If you feel the same, I’ll be happy to hear from you.";
+      else if (score >= 5)
+        message = "No pressure at all… maybe we can just keep talking and see where it goes.";
       else
-        message = `It's completely okay either way. I'm still really glad I got to know you.`;
+        message = "Thank you for being honest. I’m still really glad I got to know you.";
 
-      const MY_NUMBER = "6281316310496";
-	  const waLink = `https://wa.me/${MY_NUMBER}`;
+      const waLink = `https://wa.me/${MY_NUMBER}`;
 
       app.innerHTML = `
         <h2>${message}</h2>
-        ${score >= 2 ? `<button class=\"wa-btn\" onclick=\"window.open('${waLink}','_blank')\">Click here to WhatsApp me 💬</button>` : ""}
+        ${score >= 5 ? `<button class=\"wa-btn\" onclick=\"window.open('${waLink}','_blank')\">Click here to WhatsApp me 💬</button>` : ""}
       `;
     }
 
-    function spawnHearts() {
+    function spawnFireworks() {
       setInterval(() => {
-        const h = document.createElement("div");
-        h.className = "heart";
-        h.style.left = Math.random() * 100 + "vw";
-        h.style.animationDuration = 4 + Math.random() * 3 + "s";
-        document.body.appendChild(h);
-        setTimeout(() => h.remove(), 7000);
-      }, 400);
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight * 0.6;
+
+        for (let i = 0; i < 12; i++) {
+          const f = document.createElement("div");
+          f.className = "firework";
+          f.style.left = x + "px";
+          f.style.top = y + "px";
+
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 40 + Math.random() * 40;
+
+          f.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+          f.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+
+          document.body.appendChild(f);
+          setTimeout(() => f.remove(), 900);
+        }
+      }, 900);
     }
 
-    spawnHearts();
-    render();
+    spawnFireworks();
+    renderIntro();
   </script>
 </body>
 </html>
