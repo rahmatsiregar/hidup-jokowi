@@ -1,138 +1,235 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Yes or No Quiz</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cute Date Invitation</title>
+
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
-      background-color: #f2f2f2;
+      overflow: hidden;
     }
 
-    .container {
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 40px;
+    .card {
+      background: #111827;
+      padding: 30px;
+      border-radius: 18px;
       text-align: center;
-      width: 360px;
+      width: min(420px, 92vw);
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+      animation: fadeIn 0.5s ease;
+      position: relative;
+      z-index: 10;
     }
 
-    img {
-      width: 220px;
-      height: auto;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+
+    img.gif {
+      width: 220px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+
+    h2 { line-height: 1.5; margin-bottom: 18px; white-space: pre-line; }
 
     button {
-      margin: 10px;
-      padding: 10px 25px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 8px;
+      margin: 6px;
+      padding: 10px 20px;
       border: none;
-      background-color: #007bff;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #ec4899;
       color: white;
-      transition: background-color 0.2s;
+      transition: 0.2s;
     }
 
-    button:hover:not(:disabled) {
-      background-color: #0056b3;
+    button:hover { transform: scale(1.05); background: #db2777; }
+
+    .secondary { background: #374151; }
+    .secondary:hover { background: #4b5563; }
+
+    .options { display: grid; gap: 10px; margin-top: 10px; }
+
+    .wa-btn { background: #22c55e; }
+    .wa-btn:hover { background: #16a34a; }
+
+    /* floating hearts */
+    .heart {
+      position: fixed;
+      bottom: -20px;
+      width: 14px;
+      height: 14px;
+      background: #ff6fa5;
+      transform: rotate(45deg);
+      animation: floatUp 6s linear infinite;
+      opacity: 0.8;
+      z-index: 1;
     }
 
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
+    .heart::before,
+    .heart::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #ff6fa5;
+      border-radius: 50%;
     }
 
-    #result {
-      font-weight: bold;
-      color: darkblue;
-    }
+    .heart::before { top: -7px; left: 0; }
+    .heart::after { left: -7px; top: 0; }
 
-    ul {
-      list-style-type: none;
-      padding: 0;
-      text-align: left;
-      margin-top: 20px;
-    }
-
-    li {
-      background-color: #e9f1ff;
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin-bottom: 6px;
+    @keyframes floatUp {
+      from { transform: translateY(0) rotate(45deg); opacity: 0.9; }
+      to { transform: translateY(-110vh) rotate(45deg); opacity: 0; }
     }
   </style>
 </head>
-<body>
 
-  <div class="container">
-    <img id="questionImage" src="" alt="Question image">
-    <h2 id="questionText"></h2>
-    <div>
-      <button id="yesBtn" onclick="answer('Yes')">Yes</button>
-      <button id="noBtn" onclick="answer('No')">No</button>
-    </div>
-    <button id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
-    <div id="result"></div>
-  </div>
+<body>
+  <div class="card" id="app"></div>
 
   <script>
-    const questions = [
-      { text: "Do you like coffee?", image: "coffee.gif" },
-      { text: "Do you enjoy playing games?", image: "godzilla.gif" },
-      { text: "Do you have a pet?", image: "pet.gif" },
-      { text: "Do you like traveling?", image: "travel.gif" },
-      { text: "Do you prefer summer over winter?", image: "summer.gif" }
+    /** 🔧 PUT YOUR WHATSAPP NUMBER HERE (international format, no +) */
+    const MY_NUMBER = "6281234567890";
+
+    const steps = [
+      { type: "question", text: "Hey… can I ask you something small?", gif: "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" },
+      { type: "question", text: "Do you smile when you see my name appear?", gif: "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" },
+      { type: "question", text: "Do you enjoy our little conversations?", gif: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" },
+      { type: "question", text: "Do you feel a bit happier when we're talking?", gif: "https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif" },
+      { type: "question", text: "Would you like to spend real time together someday?", gif: "https://media.giphy.com/media/13borq7Zo2kulO/giphy.gif" },
+      { type: "question", text: "If I asked you out gently… would that be okay?", gif: "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif" },
+
+      {
+        type: "choice",
+        key: "place",
+        text: "If we go out… where feels nicest to you?",
+        options: [
+          { label: "Cozy café ☕", value: "cafe" },
+          { label: "Evening city walk 🌆", value: "city" },
+          { label: "Quiet park 🌿", value: "park" },
+          { label: "Beach sunset 🌊", value: "beach" }
+        ]
+      },
+
+      {
+        type: "choice",
+        key: "vibe",
+        text: "What kind of feeling would you like that moment to have?",
+        options: [
+          { label: "Soft and calm 🌙", value: "calm" },
+          { label: "Playful and fun ✨", value: "fun" },
+          { label: "Deep and meaningful 💬", value: "deep" },
+          { label: "A little romantic ❤️", value: "romantic" }
+        ]
+      },
+
+      {
+        type: "choice",
+        key: "activity",
+        text: "And… what should we do there?",
+        options: [
+          { label: "Just talk and laugh 😊", value: "talk" },
+          { label: "Walk around together 🚶", value: "walk" },
+          { label: "Eat something nice 🍰", value: "eat" },
+          { label: "Anything, as long as it's with you 💗", value: "together" }
+        ]
+      },
+
+      { type: "final", text: "So… would you like to go out with me?", gif: "https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif" }
     ];
 
-    let current = 0;
-    const answers = [];
+    let step = 0;
+    let score = 0;
+    let prefs = {};
 
-    function loadQuestion() {
-      document.getElementById("result").textContent = "";
-      document.getElementById("nextBtn").disabled = true;
+    const app = document.getElementById("app");
 
-      const q = questions[current];
-      document.getElementById("questionText").textContent = q.text;
-      document.getElementById("questionImage").src = q.image;
-    }
+    function render() {
+      const s = steps[step];
+      const gifHTML = s.gif ? `<img class=\"gif\" src=\"${s.gif}\" />` : "";
 
-    function answer(choice) {
-      answers[current] = choice;
-      document.getElementById("nextBtn").disabled = false;
-    }
+      if (s.type === "question") {
+        app.innerHTML = `${gifHTML}<h2>${s.text}</h2><button onclick=\"answer(true)\">Yes</button><button class=\"secondary\" onclick=\"answer(false)\">No</button>`;
+      }
 
-    function nextQuestion() {
-      current++;
-      if (current < questions.length) {
-        loadQuestion();
-      } else {
-        showResults();
+      if (s.type === "choice") {
+        const opts = s.options.map(o => `<button onclick=\"choose('${s.key}','${o.value}')\">${o.label}</button>`).join("");
+        app.innerHTML = `<h2>${s.text}</h2><div class=\"options\">${opts}</div>`;
+      }
+
+      if (s.type === "final") {
+        app.innerHTML = `${gifHTML}<h2>${s.text}</h2><button onclick=\"answer(true)\">Yes ❤️</button><button class=\"secondary\" onclick=\"answer(false)\">No</button>`;
       }
     }
 
-    function showResults() {
-      let summary = "<h2>Quiz Completed!</h2><p>Your answers:</p><ul>";
-      for (let i = 0; i < questions.length; i++) {
-        summary += `<li>Q${i+1}: ${questions[i].text} — <strong>${answers[i]}</strong></li>`;
-      }
-      summary += "</ul><p>Thank you for completing the quiz!</p>";
-
-      document.querySelector(".container").innerHTML = summary;
+    function answer(yes) {
+      if (yes) score++;
+      step++;
+      if (step < steps.length) render(); else showResult();
     }
 
-    loadQuestion();
+    function choose(key, value) {
+      prefs[key] = value;
+      step++;
+      if (step < steps.length) render(); else showResult();
+    }
+
+    function showResult() {
+      const placeMap = { cafe: "a cozy café", city: "an evening city walk", park: "a quiet park", beach: "the beach at sunset" };
+      const vibeMap = { calm: "soft and calm", fun: "playful and fun", deep: "deep and meaningful", romantic: "a little romantic" };
+      const actMap = { talk: "just talking and laughing", walk: "walking side by side", eat: "sharing something sweet", together: "anything, as long as we're together" };
+
+      const place = placeMap[prefs.place] || "somewhere nice";
+      const vibe = vibeMap[prefs.vibe] || "a beautiful feeling";
+      const act = actMap[prefs.activity] || "spending time together";
+
+      let message = "";
+
+      if (score >= 6)
+        message = `I’d like to take you to ${place}. It could feel ${vibe}, and we could spend the time ${act}.`;
+      else if (score >= 4)
+        message = `Maybe we could start simple. ${act} at ${place} sounds nice.`;
+      else if (score >= 2)
+        message = `Even a small moment together at ${place} would already mean a lot.`;
+      else
+        message = `It's completely okay either way. I'm still really glad I got to know you.`;
+
+      const MY_NUMBER = "6281316310496";
+	  const waLink = `https://wa.me/${MY_NUMBER}`;
+
+      app.innerHTML = `
+        <h2>${message}</h2>
+        ${score >= 2 ? `<button class=\"wa-btn\" onclick=\"window.open('${waLink}','_blank')\">Click here to WhatsApp me 💬</button>` : ""}
+      `;
+    }
+
+    function spawnHearts() {
+      setInterval(() => {
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.style.left = Math.random() * 100 + "vw";
+        h.style.animationDuration = 4 + Math.random() * 3 + "s";
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 7000);
+      }, 400);
+    }
+
+    spawnHearts();
+    render();
   </script>
-
 </body>
 </html>
