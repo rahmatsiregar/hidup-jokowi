@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cute Date Invitation</title>
+  <title>hidup-jokowi</title>
 
   <style>
     body {
@@ -111,6 +111,9 @@
   <script>
     const MY_NUMBER = "6281316310496";
 
+    // 🔗 PUT YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+    const SHEET_ENDPOINT = "https://docs.google.com/spreadsheets/d/1_oOZHgsTBN1vj9tFMDLWXz5h-mGmZA5RHV9__wkvNQE/edit?gid=0#gid=0";
+
     const steps = [
       { type: "question", text: "can i ask u something small...?", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExazg1OG5qNHBva2VjNmJ4NzY4a3J4ZXRjemx4YWhrbnY1d3h4ODZyYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/aE7wJrIV0qeLEKKrjn/giphy.gif" },
       { type: "question", text: "do you feel comfortable talking with me?", gif: "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" },
@@ -119,41 +122,26 @@
       { type: "question", text: "would you like to spend some time together outside of chat?", gif: "https://media.giphy.com/media/13borq7Zo2kulO/giphy.gif" },
       { type: "question", text: "if i asked you to go out sometime, would that be okay?", gif: "https://media.giphy.com/media/paf7IOKOacbzPinHQC/giphy.gif" },
 
-      {
-        type: "choice",
-        key: "place",
-        text: "if we go out… where feels nicest to you?",
-        options: [
+      { type: "choice", key: "place", text: "if we go out… where feels nicest to you?", options: [
           { label: "Cozy café ☕", value: "cafe" },
           { label: "Evening city walk 🌆", value: "city" },
           { label: "Quiet park 🌿", value: "park" },
           { label: "Beach sunset 🌊", value: "beach" }
-        ]
-      },
+      ]},
 
-      {
-        type: "choice",
-        key: "vibe",
-        text: "what kind of feeling would you like that moment to have?",
-        options: [
+      { type: "choice", key: "vibe", text: "what kind of feeling would you like that moment to have?", options: [
           { label: "soft and calm 🌙", value: "calm" },
           { label: "playful and fun ✨", value: "fun" },
           { label: "deep and meaningful 💬", value: "deep" },
           { label: "a little personal and more deep ✌️", value: "romantic" }
-        ]
-      },
+      ]},
 
-      {
-        type: "choice",
-        key: "activity",
-        text: "and… what should we do there?",
-        options: [
+      { type: "choice", key: "activity", text: "and… what should we do there?", options: [
           { label: "just talk and laugh 😊", value: "talk" },
           { label: "walk around together 🚶", value: "walk" },
           { label: "eat something nice 🍰", value: "eat" },
           { label: "go home instantly bcs of tiredness 😹", value: "together" }
-        ]
-      },
+      ]},
 
       { type: "final", text: "So… would you like to go out with me?", gif: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Zmx3eG1rNDAzcW82MXh0ODR6Mjk3dGlpaWZ6Z2Z5NnVodnY4Z2ZwdCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/QZpDATBs8QzcLZo9uI/giphy.gif" }
     ];
@@ -165,40 +153,26 @@
     const app = document.getElementById("app");
 
     function renderIntro() {
-      app.innerHTML = `
-        <div class="typing">hai bina....</div>
-        <button onclick="startQuiz()">Next</button>
-      `;
+      app.innerHTML = `<div class="typing">hai bina....</div><button onclick="startQuiz()">Next</button>`;
     }
 
-    function startQuiz() {
-      render();
-    }
+    function startQuiz() { render(); }
 
     function render() {
       const s = steps[step];
-      const gifHTML = s.gif ? `<img class=\"gif\" src=\"${s.gif}\" />` : "";
+      const gifHTML = s.gif ? `<img class="gif" src="${s.gif}" />` : "";
 
       if (s.type === "question" || s.type === "final") {
         app.innerHTML = `${gifHTML}<h2>${s.text}</h2>
-          <button onclick=\"answer(2)\">Yes</button>
-          <button class=\"maybe\" onclick=\"answer(1)\">Maybe</button>
-          <button class=\"secondary\" onclick=\"answer(0)\">No</button>`;
+          <button onclick="answer(2)">Yes</button>
+          <button class="maybe" onclick="answer(1)">Maybe</button>
+          <button class="secondary" onclick="answer(0)">No</button>`;
       }
 
       if (s.type === "choice") {
-        const buttons = s.options
-          .map(o => `<button onclick=\"choose('${s.key}','${o.value}')\">${o.label}</button>`)
-          .join("");
-
-        app.innerHTML = `<h2>${s.text}</h2><div class=\"options\">${buttons}</div>`;
+        const buttons = s.options.map(o => `<button onclick="choose('${s.key}','${o.value}')">${o.label}</button>`).join("");
+        app.innerHTML = `<h2>${s.text}</h2><div class="options">${buttons}</div>`;
       }
-    }
-
-    function answer(value) {
-      score += value;
-      step++;
-      if (step < steps.length) render(); else showResult();
     }
 
     function answer(value) {
@@ -213,6 +187,27 @@
       render();
     }
 
+    async function sendToSheet() {
+      if (!SHEET_ENDPOINT.includes("http")) return;
+
+      try {
+        await fetch(SHEET_ENDPOINT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            time: new Date().toISOString(),
+            score: score,
+            place: prefs.place || "",
+            vibe: prefs.vibe || "",
+            activity: prefs.activity || ""
+          })
+        });
+      } catch (err) {
+        console.log("sheet error", err);
+      }
+    }
+
     function showResult() {
       let message = "";
 
@@ -223,11 +218,14 @@
       else
         message = "why u try to retake and choose no on every question lmao so got u 😹😹😹.";
 
+      // send silently to Google Sheet
+      sendToSheet();
+
       const waLink = `https://wa.me/${MY_NUMBER}`;
 
       app.innerHTML = `
         <h2>${message}</h2>
-        ${score >= 5 ? `<button class=\"wa-btn\" onclick=\"window.open('${waLink}','_blank')\">text me hehe 💬</button>` : ""}
+        ${score >= 5 ? `<button class="wa-btn" onclick="window.open('${waLink}','_blank')">text me hehe 💬</button>` : ""}
       `;
     }
 
@@ -259,6 +257,3 @@
   </script>
 </body>
 </html>
-
-
-
