@@ -110,8 +110,6 @@
 
   <script>
     const MY_NUMBER = "6281316310496";
-
-    // 🔗 PUT YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
     const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbyhc0VQTthbBDEpksw9fUMlCAvrivelIb85Fnp3xPmnkpv0D2U5Rki7ACtjeq06Gckndg/exec";
 
     const steps = [
@@ -148,6 +146,8 @@
 
     let step = 0;
     let score = 0;
+    let yesCount = 0;
+    let maybeCount = 0;
     let prefs = {};
 
     const app = document.getElementById("app");
@@ -177,6 +177,9 @@
 
     function answer(value) {
       score += value;
+      if (value === 2) yesCount++;
+      if (value === 1) maybeCount++;
+
       step++;
       if (step < steps.length) render(); else showResult();
     }
@@ -198,6 +201,8 @@
           body: JSON.stringify({
             time: new Date().toISOString(),
             score: score,
+            yesCount: yesCount,
+            maybeCount: maybeCount,
             place: prefs.place || "",
             vibe: prefs.vibe || "",
             activity: prefs.activity || ""
@@ -218,7 +223,6 @@
       else
         message = "why u try to retake and choose no on every question lmao so got u 😹😹😹.";
 
-      // send silently to Google Sheet
       sendToSheet();
 
       const waLink = `https://wa.me/${MY_NUMBER}`;
